@@ -18,6 +18,8 @@ class KNNRegression(KNNBase):
         top_k_indices = distances.argsort()[:self.k]
         top_k_values = self.y_train[top_k_indices]
 
+        # NOTE: Rather than a majority vote, we take the average of the
+        # values of the neighbors for regression
         return np.mean(top_k_values)
 
 

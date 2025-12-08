@@ -18,6 +18,8 @@ class KNNClassifier(KNNBase):
         top_k_indices = distances.argsort()[:self.k]
         top_k_labels = self.y_train[top_k_indices]
 
+        # NOTE: Take a majority vote of the labels of the neighbors
+        # and that majority will be the label of the new data point
         values, counts = np.unique(top_k_labels, return_counts=True)
         majority_vote = values[np.argmax(counts)]
         return majority_vote
