@@ -13,11 +13,8 @@ class KNNBase:
 
     def predict(self, X: np.ndarray):
         assert len(X.shape) == 2, "X must be a 2D array"
-        predictions = []
-        for x in X:
-            predicted_value = self._predict_single(x)
-            predictions.append(predicted_value)
-        return np.array(predictions)
+        predictions = np.array([self._predict_single(x) for x in X])
+        return predictions
 
     def _predict_single(self, x):
         raise NotImplementedError()
