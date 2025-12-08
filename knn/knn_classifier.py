@@ -18,5 +18,6 @@ class KNNClassifier(KNNBase):
         top_k_indices = distances.argsort()[:self.k]
         top_k_labels = self.y_train[top_k_indices]
 
-        majority_vote = np.argmax(np.bincount(top_k_labels))
+        values, counts = np.unique(top_k_labels, return_counts=True)
+        majority_vote = values[np.argmax(counts)]
         return majority_vote
