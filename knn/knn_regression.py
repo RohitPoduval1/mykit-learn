@@ -9,17 +9,10 @@ class KNNRegression(KNNBase):
         super().__init__(k, use_weighting)
 
     def _predict_single(self, x):
-        assert len(x.shape) == 1
-        # distance from `x` to each point in the training data
-        distances = np.sqrt(np.sum((self.X_train - x)**2, axis=1))
-        assert len(distances.shape) == 1
-        assert distances.shape[0] == self.X_train.shape[0]
+        top_k_values = self._get_top_k_targets(x)
 
-        top_k_indices = distances.argsort()[:self.k]
-        top_k_values = self.y_train[top_k_indices]
-
-        # NOTE: Rather than a majority vote, we take the average of the
-        # values of the neighbors for regression
+        # NOTE: The label of the incoming point is the average of
+        # the top k closest points
         return np.mean(top_k_values)
 
 

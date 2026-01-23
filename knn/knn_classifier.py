@@ -13,24 +13,20 @@ class KNNClassifier(KNNBase):
         super().__init__(k, use_weighting)
 
     def _predict_single(self, x):
-        assert len(x.shape) == 1
-        # distance from `x` to each point in the training data
-        distances = np.sqrt(np.sum((self.X_train - x)**2, axis=1))
-        assert len(distances.shape) == 1
-        assert distances.shape[0] == self.X_train.shape[0]
+        top_k_labels = self._get_top_k_targets(x)
 
-        top_k_indices = distances.argsort()[:self.k]
-        top_k_labels = self.y_train[top_k_indices]
-
-        # NOTE: Take a majority vote of the labels of the neighbors
-        # and that majority will be the label of the new data point
+        # NOTE: The label of the new data point is the majority vote of
+        # the top k closest points
         values, counts = np.unique(top_k_labels, return_counts=True)
         majority_vote = values[np.argmax(counts)]
         return majority_vote
 
+
 def main():
     X, y = load_wine(return_X_y=True)
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.2, random_state=42
+    )
 
     print("Without Scaling")
     for k in range(1, 36, 5):
