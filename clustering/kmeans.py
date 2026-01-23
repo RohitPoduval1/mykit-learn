@@ -4,14 +4,22 @@ import pytest
 
 class KMeans:
     def __init__(self, num_clusters: int, max_iters: int=30, random_state=5521) -> None:
+        """
+
+        Args:
+            num_clusters (int) - How many groups are there
+            max_iters (int=30) - What is the maximum number of iterations to
+                run if convergence is not reached
+            random_state (int=5521) - For reproducibility
+        """
         self.num_clusters = num_clusters
         self.max_iters = max_iters
         self.random_state = random_state
         self.centroids = np.array([])
-        self._data_points_for_cluster = [[] for _ in range(num_clusters)]
+        self._data_points_in_cluster = [[] for _ in range(num_clusters)]
 
     def _init_centroids(self, X):
-        """Initialize centroids as random points in the data matrix `X`.
+        """Initialize centroids as random points from the data matrix `X`.
 
         Args:
             X (np.ndarray): Data matrix to initialize based off of
@@ -33,16 +41,14 @@ class KMeans:
         assert len(x.shape) == 1
         
         distances_to_centroid = np.array(
-            [np.sqrt(np.sum((x - centroid)**2)) for centroid in self.centroids]
+            [np.linalg.norm(centroid - x) for centroid in self.centroids]
         )
-
-        # The index of the closest centroid to `x`
         closest_centroid_index = np.argmin(distances_to_centroid)
         return closest_centroid_index
 
     def _update_centroid_means(self):
         for centroid_index in range(self.centroids.shape[0]):
-            data = np.array(self._data_points_for_cluster[centroid_index])
+            data = np.array(self._data_points_in_cluster[centroid_index])
             new_centroid_mean = np.mean(data)
             self.centroids[centroid_index] = new_centroid_mean
 
@@ -50,8 +56,8 @@ class KMeans:
         self._init_centroids(X)
         for _ in range(self.max_iters):
             for x in X:
-                centroid_index = self._find_closest_centroid(x)
-                self._data_points_for_cluster[centroid_index].append(x)
+                closest_centroid_index = self._find_closest_centroid(x)
+                self._data_points_in_cluster[closest_centroid_index].append(x)
             
             prev_centroids = self.centroids.copy()
             self._update_centroid_means()
@@ -104,7 +110,7 @@ class TestKMeansInitialization:
         assert km.num_clusters == 3
         assert km.max_iters == 50
         assert km.random_state == 42
-        assert len(km._data_points_for_cluster) == 3
+        assert len(km._data_points_in_cluster) == 3
     
     def test_init_centroids_shape(self, simple_2d_data):
         """Test centroid initialization produces correct shape"""
